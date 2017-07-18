@@ -1,0 +1,15 @@
+<amqp:endpoint exchangeName="main-exchange" queueName="queue1" exchangeDurable="true" name="AMQP_0_9_queue1" responseTimeout="10000" doc:name="AMQP-0-9" routingKey="rk-q1" exchangeType="direct" exchange-pattern="request-response"/>
+<amqp:endpoint exchangeName="main-exchange" queueName="queue2" name="AMQP_0_9_queue2" responseTimeout="10000" doc:name="AMQP-0-9" exchangeDurable="true" routingKey="rk-q2" exchangeType="direct"/>
+<amqp:connector name="AMQP_0_9_Connector" validateConnections="true" username="administrator" password="password" doc:name="AMQP-0-9 Connector"/>
+<flow name="rabbitmq-receiveFromServer-queuetestFlow">
+    <amqp:inbound-endpoint   responseTimeout="10000" exchange-pattern="request-response"  doc:name="AMQP-MSG-FROM-QUEUE1" ref="AMQP_0_9_queue1" connector-ref="AMQP_0_9_Connector"/>
+    <byte-array-to-object-transformer returnClass="java.lang.String" doc:name="Byte Array to Object"/>
+    <logger message="Message from Queue1: #[payload]" level="INFO" doc:name="Logger: Incoming from RabbitMQ"/>
+    <set-payload value="#[&quot;hello&quot;]" mimeType="text/plain" doc:name="Set Message you want to Send"/>
+    <amqp:outbound-endpoint  responseTimeout="10000" exchange-pattern="request-response" ref="AMQP_0_9_queue2" doc:name="AMQP-MSG-TO-QUEUE2" connector-ref="AMQP_0_9_Connector"/>
+</flow>
+<flow name="rabbitmq-printMessageSentToServer-queuetestFlows">
+    <amqp:inbound-endpoint   responseTimeout="10000" exchange-pattern="request-response"  doc:name="AMQP-MSG-FROM-QUEUE2" ref="AMQP_0_9_queue2" connector-ref="AMQP_0_9_Connector"/>
+    <byte-array-to-object-transformer returnClass="java.lang.String" doc:name="Byte Array to Object"/>
+    <logger message="Message from Queue2: #[payload]" level="INFO" doc:name="Logger: Outgoing to RabbitMQ"/>
+</flow>
